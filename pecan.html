@@ -1,0 +1,87 @@
+ <!DOCTYPE html>
+<html>
+	<head>
+		<title>Pecan</title>
+		<link rel="stylesheet" href="lib/twbs/css/bootstrap.min.css">
+		<style type="text/css" media="screen">
+		    #editor {
+		        position: absolute;
+		        top: 0;
+		        right: 0;
+		        bottom: 0;
+		        left: 0;
+		    }
+
+		    #popup {
+		    	position: relative;
+		    	width: 384px;
+		    	margin: auto;
+		    	z-index: 999;
+		    	top: 8px;
+		    }
+
+		    #popup-input {
+		    	position: relative;
+		    	width: 384px;
+		    	margin: auto;
+		    	border-radius: 0px;
+		    	box-shadow: none;
+		    }
+
+		    .tt-dropdown-menu {
+		    	width: 384px;
+		    	background-color: #fff; 
+		    	font-size: 14px;
+		    }
+
+		    .tt-suggestion {
+		    	width: 100%;
+		    	padding: 6px 12px;
+		    	border-left: 1px solid #ccc;
+		    	border-right: 1px solid #ccc;
+		    	border-bottom: 1px solid #ccc;
+		    }
+
+		    .tt-suggestion.tt-cursor {
+		    	color: #fff;
+  				background-color: #0097cf;
+  				border-left: 1px solid #0097cf;
+		    	border-right: 1px solid #0097cf;
+		    	border-bottom: 1px solid #0097cf;
+		    }
+
+		    .cmd-name {
+		    	float: left;
+		    }
+
+		    .cmd-args {
+		    	font-size: 10px;
+		    	margin-left: 4px;
+		    }
+
+		    .cmd-type {
+		    	float: right;	
+		    }
+
+		    .empty-message {
+		    	color: #777;
+		    }
+
+		    input:focus {
+			    outline-width: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="editor"></div>
+		<div id="popup">
+			<input type="text" class="form-control" id="popup-input">
+		</div>
+		<script src="lib/jquery/jquery.js" type="text/javascript"></script>
+		<script src="lib/ace/ace.js" type="text/javascript" data-ace-base="lib/ace" charset="utf-8"></script>
+		<script src="lib/handlebars/handlebars.js" type="text/javascript"></script>
+		<script src="lib/typeahead/typeahead.bundle.min.js" type="text/javascript"></script>
+		<script src="lib/ace/ext-themelist.js" type="text/javascript" charset="utf-8"></script>
+		<script src="src/boot.js"></script>
+	</body>
+</html>
