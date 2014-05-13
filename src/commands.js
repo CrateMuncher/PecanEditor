@@ -13,14 +13,22 @@ var utils = require("./utils.js");
 
 addCommand("nl", {
 	description: "Next Line",
-	type: "positions",
+	type: "cursor",
+	arguments: [],
+	action: function(editor) {
+		window.alert(editor.getSession().getSelection());
+	}
+});
+
+addCommand("pl", {
+	description: "Previous Line",
+	type: "cursor",
 	arguments: [],
 	action: function(editor) {
 		return [
-
 		];
 	}
-});
+})
 
 addCommand("cl", {
 	description: "Change Language",
@@ -29,27 +37,23 @@ addCommand("cl", {
 		{
 			name: "language",
 			type: "text",
-			autocomplete: function(query) {
+			/*autocomplete: function(query) {
 				var modeList = utils.loadAceModule("ace/ext/modelist");
 				console.log(modeList);
-			}
+			}*/
 		}
 	],
 	action: function(editor, args) {
 	}
 });
 
-addCommand("faa", {
-	description: "Find All After",
-	type: "selection",
+addCommand("d", {
+	description: "Delete (Until)",
+	type: "action",
 	arguments: [
 		{
-			name: "afterWhere",
-			type: "position",
-		},
-		{
-			name: "query",
-			type: "text"
+			name: "end",
+			type: "cursor"
 		}
 	]
-})
+});
