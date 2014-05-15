@@ -2,7 +2,9 @@
 	"name": "pecan",
 	"version": "0.0.1",
 	"dependencies": {
-		"lodash": "2.4.1"
+		"lodash": "2.4.1",
+		"glob": "3.2.9",
+		"lorem-ipsum": "1.0.1"
 	},
 	"main": "pecan.html",
 	"window": {

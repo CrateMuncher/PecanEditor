@@ -1,4 +1,6 @@
 var main = require("./main.js");
+var ch = require("./commandhandler.js");
+var utils = require("./utils.js");
 
 var $ = window.$; // jQuery is in "window" here
 var _ = require("lodash");
@@ -13,6 +15,7 @@ $(window.document).keyup(function(evt) {
 			$("#popup-input").focus();
 			$("#popup-input").val("");
 			isShowingPopup = true;
+			evt.stopPropagation();
 		} else {
 			$("#popup").hide();
 			main.editor.focus();
@@ -20,7 +23,7 @@ $(window.document).keyup(function(evt) {
 		}
 	} else if (evt.which == 13) {
 		if (isShowingPopup) {
-			main.handleCommand($("#popup-input").val());
+			ch.execute(ch.splitQuery($("#popup-input").val()));
 			$("#popup").hide();
 			main.editor.focus();
 			isShowingPopup = false;

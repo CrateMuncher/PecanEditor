@@ -1,6 +1,7 @@
 var $ = window.$;
 var main = require("./main.js");
 var ch = require("./commandhandler.js");
+var utils = require("./utils.js");
 var _ = require("lodash");
 
 var deepGetLastList = function(list) {
@@ -19,10 +20,7 @@ var deepGetLastListsParent = function(list, parent) {
 	}
 };
 
-var commandTemplate = window.Handlebars.compile('<span class="cmd-name"><strong>{{name}}</strong></span><span class="cmd-args">{{#each arguments}}{{this.type}} {{/each}}</span><span class="cmd-type"><small>{{type}}</small></span><br /><span class="cmd-desc">{{description}}</span>');
-var plainTextPlaceholderTemplate = window.Handlebars.compile('<span class="empty-message">Text string</span>');
-var stringTemplate = window.Handlebars.compile('{{string}}');
-var noSuggestionsTemplate = window.Handlebars.compile('<span class="empty-message">No suggestions</span>');
+var commandTemplate = window.Handlebars.compile('<span class="empty-message">{{emptyMessage}}</span><span class="plain-text">{{plainText}}</span><span class="commandString">{{commandString}}</span><span class="cmd-name"><strong>{{name}}</strong></span><span class="cmd-args">{{#each arguments}}{{this.type}} {{/each}}</span><span class="cmd-type"><small>{{type}}</small></span><br /><span class="cmd-desc">{{description}}</span>');
 
 var autocompleteCommand = function(type, query) {
 	var possibleTypes = ch.typeMatchers[type];
@@ -54,10 +52,7 @@ var commandMatcher = function() {
 		if (!splitQuery || splitQuery.length == 1) {
 			// Start of the command
 			var matchingCommands = autocompleteCommand("start", splitQuery[0]);
-			var matchStrings = _.map(matchingCommands, function (cmd) {
-				return commandTemplate(cmd);
-			});
-			cb(matchStrings);
+			cb(matchingCommands);
 			return;
 		}
 		var sexpr = ch.makeSexpr(splitQuery);
@@ -67,33 +62,52 @@ var commandMatcher = function() {
 		if (commandSexpr.length <= 1) {
 			commandSexpr = deepGetLastListsParent(sexpr);
 			if (!commandSexpr) {
-				cb([noSuggestionsTemplate()]);
+				cb([]);
 				return;
 			}
 			command = main.commands[commandSexpr[0]];
 		}
 		if (!command) {
-			cb([noSuggestionsTemplate()]);
+			cb([]);
 			return;
 		}
 		var argument = command.arguments[commandSexpr.length - 2];
 		if (!argument) {
-			cb([noSuggestionsTemplate()]);
+			cb([]);
 			return;
 		}
 		if (argument.autocomplete) {
-			cb(argument.autocomplete(commandSexpr[commandSexpr.length-1]));
+			if (!argument.autocomplete.matching) {
+				cb(_.map(argument.autocomplete.run(commandSexpr[commandSexpr.length-1]), function(item) {
+					return {
+						commandString: item,
+						value: item
+					}
+				}));
+			} else {
+				var options = argument.autocomplete.fuse || {};
+				var results = argument.autocomplete.run(commandSexpr[commandSexpr.length-1]);
+				var fuse = new window.Fuse(results, options);
+				var res = fuse.search(commandSexpr[commandSexpr.length-1]);
+
+				res = _.map(res, function(entry) {
+					entry.value = utils.replaceLast(q, commandSexpr[commandSexpr.length-1], entry.value);
+					return entry;
+				});
+				cb(res);
+			}
 		} else {
-			//window.alert(JSON.stringify(argument));
 			if (argument.type == "text") {
-				cb([plainTextPlaceholderTemplate()]);
+				cb({
+					plainText: "Text String"
+				});
 				return;
 			} else {
-				var matchingCommands = autocompleteCommand(argument.type, commandSexpr[commandSexpr.length-1]);
-				var matchStrings = _.map(matchingCommands, function (cmd) {
-					return commandTemplate(cmd);
+				var matchingCommands = _.map(autocompleteCommand(argument.type, commandSexpr[commandSexpr.length-1]), function(cmd) {
+					cmd.value = cmd.name;
+					return cmd;
 				});
-				cb(matchStrings);
+				cb(matchingCommands);
 				return;
 			}
 		}
@@ -105,10 +119,10 @@ $("#popup-input").typeahead({
 	highlight: false
 }, {
 	name: "cmds",
-	displayKey: 'name',
+	displayKey: 'value',
 	source: commandMatcher(),
 	templates: {
-		empty: '<div class="tt-suggestion">' + noSuggestionsTemplate() + '</div>',
-		suggestion: function(str) { return str; }
+		empty: '<div class="tt-suggestion">No suggestions</div>',
+		suggestion: commandTemplate
 	}
 });
