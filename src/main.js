@@ -1,6 +1,7 @@
 window.ace.require("ace/commands/multi_select_commands").keyboardHandler.bindKey("esc", null); // Remove the hotkey to exit multiple selection mode (Esc), it conflicts
 
 var editor = window.ace.edit("editor");
+var utils = require("./utils");
 
 var api = {
 	commands: {},
@@ -10,6 +11,13 @@ var api = {
 	},
 	editor: editor
 };
+
+utils.loadAceModule("ace/ext/language_tools");
+editor.setOptions({
+    enableBasicAutocompletion: true,
+    enableLiveAutocompletion: true,
+    enableSnippets: true
+});
 
 module.exports = api;
 
