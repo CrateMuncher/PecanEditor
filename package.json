@@ -7,6 +7,15 @@
 		"lorem-ipsum": "1.0.1",
 		"watch": "0.10.0"
 	},
+	"devDependencies": {
+	    "gulp": "3.6.2",
+	    "gulp-browserify": "0.5.0",
+	    "gulp-uglify": "0.3.0",
+	    "gulp-rename": "1.2.0",
+	    "gulp-zip": "0.3.4",
+	    "gulp-clean": "0.2.4",
+	    "nodewebkit": "0.8.6-2"
+	},
 	"main": "pecan.html",
 	"window": {
 		"toolbar": true

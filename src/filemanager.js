@@ -61,11 +61,8 @@ module.exports = {
 		  	doc.on("change", listenCallback);
 		  	fs.watch(filename, { persistent: false }, function(evt, name) {
 		  		var timeDelta = new Date() - file.lastChange;
-		  		if (timeDelta > 100) {
-		  			console.log("hai");
+		  		if (timeDelta > 500) {
 		  			fs.readFile(filename, 'utf8', function (err, data) {
-		  				console.log("hai");
-		  				console.log(err);
 		  				if (err) {
 		  					return err;
 		  				}
@@ -77,6 +74,10 @@ module.exports = {
 	},
 	saveSession: function(session) {
 		var data = this.getFileDataForSession(session);
+
+		var timeDelta = new Date() - data.lastChange;
+		if (timeDelta < 1000) return;
+
 		fs.writeFile(data.filename, data.doc.getValue()); 
 		data.lastChange = new Date();
 	},
@@ -94,7 +95,7 @@ module.exports = {
 		}
 	},
 	updateFileCache: function() {
-		cache = glob.sync("**/*");
+		cache = glob.sync("./**/*");
 		return cache;
 	}
 };

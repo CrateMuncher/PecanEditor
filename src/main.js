@@ -1,3 +1,5 @@
+if (process.env.test_cwd) process.chdir(process.env.test_cwd); // VERY important!
+
 window.ace.require("ace/commands/multi_select_commands").keyboardHandler.bindKey("esc", null); // Remove the hotkey to exit multiple selection mode (Esc), it conflicts
 
 var utils = require("./utils");

@@ -6,6 +6,7 @@ var _ = require("lodash");
 var path = require("path");
 var filemanager = require("./filemanager.js");
 var exec_ = require("child_process").exec;
+var nwgui = require("./nwgui.js");
 
 var ThemeList = utils.loadAceModule("ace/ext/themelist");
 var ModeList = utils.loadAceModule("ace/ext/modelist");
@@ -273,11 +274,11 @@ addCommand("cmd", {
 });
 
 // This doesn't work
-/*addCommand("odt", {
+addCommand("odt", {
 	description: "Open WebKit development tools",
 	type: "action",
 	arguments: [],
 	action: function(opts) {
-		require('nw.gui').Window.get().showDevTools();
+		nwgui.Window.get().showDevTools();
 	}
-});*/
+});
