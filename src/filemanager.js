@@ -16,8 +16,12 @@ module.exports = {
 	files: {},
 	loadFileInto: function(filename, idx) {
 		filename = path.normalize(process.cwd() + path.sep + filename);
-		var idx = idx || split.$editors.indexOf(split.getCurrentEditor());
+		idx = idx || split.$editors.indexOf(split.getCurrentEditor());
 		var me = this;
+		if (!fs.existsSync(filename)) {
+		    var fd = fs.openSync(filename, 'a');
+		    fs.closeSync(fd);
+		}
 		fs.readFile(filename, 'utf8', function (err,data) {
 		  	if (err) {
 		    	return err;
@@ -28,7 +32,7 @@ module.exports = {
 		  		file = {
 		  			filename: filename,
 		  			index: idx
-		  		}
+		  		};
 		  	}
 		  	var doc = file.doc;
 		  	if (doc) {
@@ -90,6 +94,13 @@ module.exports = {
 		}
 	},
 	updateFileCache: function() {
-		return cache = glob.sync("**/*");
+		cache = glob.sync("**/*");
+		return cache;
 	}
-}
+};
+
+watch.watchTree(process.cwd(), function(f, curr, prev) {
+    if (prev === null) {
+        module.exports.updateFileCache();
+    }
+});

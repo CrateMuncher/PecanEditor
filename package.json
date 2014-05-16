@@ -4,7 +4,8 @@
 	"dependencies": {
 		"lodash": "2.4.1",
 		"glob": "3.2.9",
-		"lorem-ipsum": "1.0.1"
+		"lorem-ipsum": "1.0.1",
+		"watch": "0.10.0"
 	},
 	"main": "pecan.html",
 	"window": {
