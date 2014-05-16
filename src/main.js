@@ -13,6 +13,9 @@ var api = {
 	setTheme: function(theme) {
 		this.theme = theme;
 		split.setTheme(theme);
+	},
+	refreshTheme: function() {
+		api.setTheme(api.theme);
 	}
 };
 
@@ -23,6 +26,7 @@ var split = require('./split.js').split;
 require('./commands.js');
 require('./popup.js');
 require('./autocomplete.js');
+require("./filemanager.js").updateFileCache();
 
 utils.loadAceModule("ace/ext/language_tools");
 api.editor.setOptions({
@@ -35,4 +39,4 @@ window.onresize = function() {
 	split.resize();
 }
 
-api.setTheme(api.theme);
+api.refreshTheme();

@@ -36,7 +36,7 @@ var autocompleteCommand = function(type, query) {
 	});
 	var options = {
 		keys: ["name", "type", "description"],
-		sort: true
+		shouldSort: true
 	}
 	var fuse = new window.Fuse(fittingCommands, options);
 	var res = fuse.search(query);
@@ -57,10 +57,10 @@ var commandMatcher = function() {
 		if (!sexpr || sexpr.length == 1) {
 			// Start of the command
 			var matchingCommands = autocompleteCommand("start", splitQuery[0]);
-			cb(_.map(matchingCommands, function(cmd) {
+			cb(_.first(_.map(matchingCommands, function(cmd) {
 				cmd.value = cmd.name;
 				return cmd;
-			}));
+			}), 10));
 			return;
 		}
 
@@ -84,12 +84,12 @@ var commandMatcher = function() {
 		}
 		if (argument.autocomplete) {
 			if (!argument.autocomplete.matching) {
-				cb(_.map(argument.autocomplete.run(commandSexpr[commandSexpr.length-1]), function(item) {
+				cb(_.first(_.map(argument.autocomplete.run(commandSexpr[commandSexpr.length-1]), function(item) {
 					return {
 						commandString: item,
 						value: item
 					}
-				}));
+				})), argument.autocomplete.first || 10);
 			} else {
 				var options = argument.autocomplete.fuse || {};
 				var results = argument.autocomplete.run(commandSexpr[commandSexpr.length-1]);
@@ -100,7 +100,7 @@ var commandMatcher = function() {
 					entry.value = utils.replaceLast(q, commandSexpr[commandSexpr.length-1], entry.value);
 					return entry;
 				});
-				cb(res);
+				cb(_.first(res, argument.autocomplete.first || 10));
 			}
 		} else {
 			if (argument.type == "text") {
@@ -113,7 +113,7 @@ var commandMatcher = function() {
 					cmd.value = utils.replaceLast(q, commandSexpr[commandSexpr.length-1], cmd.name);
 					return cmd;
 				});
-				cb(matchingCommands);
+				cb(_.first(matchingCommands, 10));
 				return;
 			}
 		}

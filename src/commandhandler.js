@@ -8,7 +8,7 @@ module.exports = {
 		return [numberRegexp[1], numberRegexp[2]];
 	},
 	splitQuery: function(query) {
-		return query.match(/\w+|"(?:\\"|[^"])+"/g); // Split on spaces, but not inside quotes
+		return query.match(/"[^"]*"|[^\s"]+/g); // Split on spaces, but not inside quotes
 	},
 	makeSexpr: function(keywords) {
 		var me = this;
