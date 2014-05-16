@@ -1,6 +1,5 @@
 window.ace.require("ace/commands/multi_select_commands").keyboardHandler.bindKey("esc", null); // Remove the hotkey to exit multiple selection mode (Esc), it conflicts
 
-var editor = window.ace.edit("editor");
 var utils = require("./utils");
 
 var api = {
@@ -9,20 +8,31 @@ var api = {
 		opts.name = name; // Let's add a key for the name as well, why the fuck not (this is for typeahead)
 		api.commands[name] = opts;
 	},
-	editor: editor
+	editor: window.ace.edit("editor"),
+	theme: "ace/theme/monokai",
+	setTheme: function(theme) {
+		this.theme = theme;
+		split.setTheme(theme);
+	}
 };
 
-utils.loadAceModule("ace/ext/language_tools");
-editor.setOptions({
-    enableBasicAutocompletion: true,
-    enableLiveAutocompletion: true,
-    enableSnippets: true
-});
-
 module.exports = api;
+
+var split = require('./split.js').split;
 
 require('./commands.js');
 require('./popup.js');
 require('./autocomplete.js');
 
-editor.setTheme("ace/theme/monokai");
+utils.loadAceModule("ace/ext/language_tools");
+api.editor.setOptions({
+    enableBasicAutocompletion: true,
+    enableLiveAutocompletion: true,
+    enableSnippets: true
+});
+
+window.onresize = function() {
+	split.resize();
+}
+
+api.setTheme(api.theme);
