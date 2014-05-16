@@ -5,6 +5,7 @@ var utils = require("./utils.js");
 var glob = require("glob");
 var path = require("path");
 var watch = require("watch");
+var nwgui = require("./nwgui.js");
 var _ = require("lodash");
 
 var ModeList = utils.loadAceModule("ace/ext/modelist");
@@ -16,7 +17,11 @@ module.exports = {
 	files: {},
 	loadFileInto: function(filename, idx) {
 		filename = path.normalize(process.cwd() + path.sep + filename);
-		idx = idx || split.$editors.indexOf(split.getCurrentEditor());
+		var current = false;
+		idx = idx || (function() {
+			split.$editors.indexOf(split.getCurrentEditor());
+			current = true;
+		})();
 		var me = this;
 		if (!fs.existsSync(filename)) {
 		    var fd = fs.openSync(filename, 'a');
@@ -52,6 +57,12 @@ module.exports = {
 		  	}
 
 		  	var newSession = window.ace.createEditSession(doc, mode);
+		  	newSession.on('focus', function() {
+		  		nwgui.Window.get().title = "Pecan - " + file.filename;
+		  	});
+		  	if (current) {
+		  		nwgui.Window.get().title = "Pecan - " + file.filename;
+		  	}
 		  	file.session = split.setSession(newSession, idx);
 		  	me.files[filename] = file;
 
