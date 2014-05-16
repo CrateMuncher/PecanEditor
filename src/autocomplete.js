@@ -23,6 +23,9 @@ var deepGetLastListsParent = function(list, parent) {
 var commandTemplate = window.Handlebars.compile('<span class="empty-message">{{emptyMessage}}</span><span class="plain-text">{{plainText}}</span><span class="commandString">{{commandString}}</span><span class="cmd-name"><strong>{{name}}</strong></span><span class="cmd-args">{{#each arguments}}{{this.type}} {{/each}}</span><span class="cmd-type"><small>{{type}}</small></span><br /><span class="cmd-desc">{{description}}</span>');
 
 var autocompleteCommand = function(type, query) {
+	if (Object.prototype.toString.call(query) === '[object Array]') {
+		query = query[0];
+	}
 	var possibleTypes = ch.typeMatchers[type];
 
 	var fittingCommands = [];
@@ -31,34 +34,37 @@ var autocompleteCommand = function(type, query) {
 			fittingCommands.push(cmd);
 		}
 	});
-	var matchRegex = new RegExp(query);
-	var matchingCommands = [];
-	_.forEach(fittingCommands, function (cmd) {
-		if (matchRegex.test(cmd.name)) {
-			matchingCommands.push(cmd);
-		}
-	});
-	_.forEach(fittingCommands, function (cmd) {
-		if (matchRegex.test(cmd.description) && !_.contains(fittingCommands, cmd)) {
-			matchingCommands.push(cmd);
-		}
-	});
-	return matchingCommands;
+	var options = {
+		keys: ["name", "type", "description"],
+		sort: true
+	}
+	var fuse = new window.Fuse(fittingCommands, options);
+	var res = fuse.search(query);
+	return res;
 }
 
 var commandMatcher = function() {
 	return function(q, cb) {
 		var splitQuery = ch.splitQuery(q) || [""];
-		if (!splitQuery || splitQuery.length == 1) {
-			// Start of the command
-			var matchingCommands = autocompleteCommand("start", splitQuery[0]);
-			cb(matchingCommands);
-			return;
-		}
-		var sexpr = ch.makeSexpr(splitQuery);
+
+		var sexpr = ch.makeSexpr(splitQuery.slice(0)); // Clone the array, makeSexpr modifies it in-place
 		var commandSexpr = deepGetLastList(sexpr);
 
-		var command = main.commands[commandSexpr[0]];
+		var commandName = commandSexpr[0];
+
+		commandName = ch.splitCommand(commandName)[1];
+
+		if (!sexpr || sexpr.length == 1) {
+			// Start of the command
+			var matchingCommands = autocompleteCommand("start", splitQuery[0]);
+			cb(_.map(matchingCommands, function(cmd) {
+				cmd.value = cmd.name;
+				return cmd;
+			}));
+			return;
+		}
+
+		var command = main.commands[commandName];
 		if (commandSexpr.length <= 1) {
 			commandSexpr = deepGetLastListsParent(sexpr);
 			if (!commandSexpr) {
@@ -98,13 +104,13 @@ var commandMatcher = function() {
 			}
 		} else {
 			if (argument.type == "text") {
-				cb({
+				cb([{
 					plainText: "Text String"
-				});
+				}]);
 				return;
 			} else {
 				var matchingCommands = _.map(autocompleteCommand(argument.type, commandSexpr[commandSexpr.length-1]), function(cmd) {
-					cmd.value = cmd.name;
+					cmd.value = utils.replaceLast(q, commandSexpr[commandSexpr.length-1], cmd.name);
 					return cmd;
 				});
 				cb(matchingCommands);

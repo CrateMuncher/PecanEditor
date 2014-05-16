@@ -2,14 +2,21 @@ var main = require("./main.js");
 var _ = require("lodash");
 
 module.exports = {
+	splitCommand: function(commandName) {
+		var numberRegexp = commandName.match(/(\d+)([a-z]+)/);
+		if (!numberRegexp) return [null, commandName];
+		return [numberRegexp[1], numberRegexp[2]];
+	},
 	splitQuery: function(query) {
 		return query.match(/\w+|"(?:\\"|[^"])+"/g); // Split on spaces, but not inside quotes
 	},
 	makeSexpr: function(keywords) {
+		var me = this;
 		// I can't really explain this bit
 		function recurse(kws) {
+			if (!kws) return;
 			var expr = [kws.shift()];
-			var cmd = main.commands[expr[0]];
+			var cmd = main.commands[me.splitCommand(expr[0])[1]];
 			if (!cmd) {
 				return expr;
 			}
@@ -27,14 +34,15 @@ module.exports = {
 			return expr;
 		}
 
-		return recurse(keywords);
+		var ret = recurse(keywords);
+		return ret;
 	},
 	execute: function(keywords) {
 		var me = this;
 		var sexpr = this.makeSexpr(keywords);
-		var numberRegexp = new RegExp(/(\d+)([a-z]+)/);
 
 		function recurse(expr) {
+			if (!expr) return;
 			for (var i = 1; i < expr.length; i++) {
 				// Reduce expressions recursively
 				var arg = expr[i];
@@ -43,22 +51,24 @@ module.exports = {
 					//if (!expr[i]) return;
 				}
 			}
-			var numberMatch = numberRegexp.exec(expr[0]);
-			var repeat = 1;
-			if (numberMatch) {
-				repeat = parseInt(numberMatch[1]);
-				expr[0] = numberMatch[2];
-			}
+			var numberMatch = me.splitCommand(expr[0]);
+			var repeat = parseInt(numberMatch[0]);
+			expr[0] = numberMatch[1];
 			var cmd = main.commands[expr[0]];
 			if (!cmd) return;
 			//var oldCursors = me.cloneCursors();
 			var ret = cmd.action({
 				editor: main.editor,
 				arguments: _.map(expr.slice(1), function(arg) {
-					return arg.replace(/\"/g, "")
+					var idx = expr.indexOf(arg);
+					if (cmd.arguments[idx - 1].type == "text") {
+						return arg.replace(/\"/g, "");
+					} else {
+						return arg;
+					}
 				}),
 				repeat: repeat,
-				cursors: main.editor.getSelection().getAllRanges()
+				cursors: me.cloneCursors()
 			});
 			/*if (!ret) {
 				// This part allows in-place editing of cursors without breaking the "flow" of commands
@@ -74,9 +84,9 @@ module.exports = {
 		}
 
 		var retval = recurse(sexpr);
+		if (!retval) return;
 		var firstCommand = main.commands[sexpr[0]];
 		if (!firstCommand) return;
-		if (!retval) return;
 		if (firstCommand.type == "text") {
 			main.editor.insert(retval);
 		} else if (firstCommand.type == "cursor") {

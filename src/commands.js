@@ -24,7 +24,7 @@ addCommand("nl", {
 	arguments: [],
 	action: function(opts) {
 		for (var i = 0; i < opts.cursors.length; i++) {
-			opts.cursors[i].moveBy(1, 0);
+			opts.cursors[i].moveBy(opts.repeat || 1, 0);
 		}
 		return opts.cursors;
 	}
@@ -36,7 +36,7 @@ addCommand("pl", {
 	arguments: [],
 	action: function(opts) {
 		for (var i = 0; i < opts.cursors.length; i++) {
-			opts.cursors[i].moveBy(-1, 0);
+			opts.cursors[i].moveBy(-opts.repeat || -1, 0);
 		}
 		return opts.cursors;
 	}
@@ -127,14 +127,9 @@ addCommand("d", {
 addCommand("li", {
 	description: "Lorem Ipsum (garbage) text generator",
 	type: "text",
-	arguments: [
-		{
-			name: "count",
-			type: "text",
-		}
-	],
+	arguments: [],
 	action: function(opts) {
-		var count = parseInt(opts.arguments[0]) || 1;
+		var count = parseInt(opts.repeat || 1);
 		return lipsum({
 			count: count
 		});
@@ -151,7 +146,7 @@ addCommand("s", {
 			autocomplete: {
 				matching: true,
 				run: function(query) {
-					return _.map(["horizontal", "vertical"], function(dir) {
+					return _.map(["h", "v"], function(dir) {
 						return {
 							value: dir,
 							name: dir
@@ -162,15 +157,11 @@ addCommand("s", {
 					keys: ["name"]
 				}
 			}
-		},
-		{
-			name: "count",
-			type: "text",
 		}
 	],
 	action: function(opts) {
 		var direction = (opts.arguments[0] == "vertical") ? split.BELOW : split.BESIDE;
-		var count = parseInt(opts.arguments[1]) || 1;
+		var count = opts.repeat || 1;
 
 		split.setOrientation(direction);
 		split.setSplits(count);
@@ -182,14 +173,9 @@ addCommand("s", {
 addCommand("ss", {
 	"description": "Select a specific screen split",
 	"type": "action",
-	arguments: [
-		{
-			name: "index",
-			type: "text",
-		}
-	],
+	arguments: [],
 	action: function(opts) {
-		var idx = parseInt(opts.arguments[0]) || 0;
+		var idx = opts.repeat || 0;
 		split.getEditor(idx).focus();
 	}
 });
@@ -200,7 +186,7 @@ addCommand("sn", {
 	arguments: [],
 	action: function(opts) {
 		var idx = split.$editors.indexOf(split.getCurrentEditor());
-		var newIdx = idx + 1;
+		var newIdx = idx + (opts.repeat || 1);
 		if (newIdx > split.getSplits() - 1) newIdx = 0;
 		if (newIdx < 0) newIdx = split.getSplits() - 1;
 		split.getEditor(newIdx).focus();
@@ -213,10 +199,9 @@ addCommand("sp", {
 	arguments: [],
 	action: function(opts) {
 		var idx = split.$editors.indexOf(split.getCurrentEditor());
-		var newIdx = idx - 1;
+		var newIdx = idx - opts.repeat;
 		if (newIdx > split.getSplits() - 1) newIdx = 0;
 		if (newIdx < 0) newIdx = split.getSplits() - 1;
 		split.getEditor(newIdx).focus();
 	}
 });
-
