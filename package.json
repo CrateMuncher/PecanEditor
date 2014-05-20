@@ -5,7 +5,8 @@
 		"lodash": "2.4.1",
 		"glob": "3.2.9",
 		"lorem-ipsum": "1.0.1",
-		"watch": "0.10.0"
+		"watch": "0.10.0",
+		"minimatch": "0.3.0"
 	},
 	"devDependencies": {
 	    "gulp": "3.6.2",

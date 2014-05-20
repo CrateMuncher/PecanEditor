@@ -25,10 +25,10 @@ module.exports = api;
 
 var split = require('./split.js').split;
 
-require('./commands.js');
-require('./popup.js');
-require('./autocomplete.js');
-require("./filemanager.js").updateFileCache();
+var commands = require('./commands.js');
+var popup = require('./popup.js');
+var autocomplete = require('./autocomplete.js');
+var filemanager = require('./filemanager.js');
 
 utils.loadAceModule("ace/ext/language_tools");
 api.editor.setOptions({
@@ -39,6 +39,14 @@ api.editor.setOptions({
 
 window.onresize = function() {
 	split.resize();
-}
+};
 
 api.refreshTheme();
+
+window.nodeRequire = function(path) {
+    return require(path);
+};
+
+require('./options.js').loadOptionsTree(process.cwd());
+
+filemanager.updateFileCache();

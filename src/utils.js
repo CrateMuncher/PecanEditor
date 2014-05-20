@@ -15,3 +15,7 @@ module.exports.escapeRegex = function(regex) {
 module.exports.replaceLast = function(string, from, to) {
 	return string.replace(new RegExp(from + '$'), to);
 }
+
+module.exports.getUserHome = function() {
+  return process.env.USERPROFILE || process.env.HOME || process.env.HOMEPATH;
+}

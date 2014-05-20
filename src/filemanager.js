@@ -6,6 +6,8 @@ var glob = require("glob");
 var path = require("path");
 var watch = require("watch");
 var nwgui = require("./nwgui.js");
+var options = require("./options.js");
+var minimatch = require("minimatch");
 var _ = require("lodash");
 
 var ModeList = utils.loadAceModule("ace/ext/modelist");
@@ -102,11 +104,25 @@ module.exports = {
 			return cache;
 		} else {
 			this.updateFileCache();
-			cache;
+			return cache;
 		}
 	},
 	updateFileCache: function() {
-		cache = glob.sync("./**/*");
+		cache = glob.sync("**/*", {
+			nosort: true,
+			nonull: true,
+			nocase: true,
+			mark: true // this is pretty important
+		});
+		cache = _.filter(cache, function(file) {
+			return (
+				file[file.length-1] !== "/"
+					&&
+				!_.some(options.options.fuzzyFinderIgnore, function(pattern) {
+					return minimatch(file, pattern);
+				})
+			)
+		});
 		return cache;
 	}
 };

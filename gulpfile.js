@@ -15,7 +15,7 @@ gulp.task('compile', function() {
         	builtins: [],
         	detectGlobals: false,
         }))
-        .pipe(uglify())
+//      .pipe(uglify())
         .pipe(rename("pecan.js"))
         .pipe(gulp.dest('dist/tmp'));
 });
@@ -42,11 +42,12 @@ gulp.task('zip', ['compile', 'copylibs', 'copyfiles'], function() {
 })
 
 gulp.task('clean', ['zip'], function() {
-	return gulp.src('dist/tmp')
-		.pipe(clean());
+    // This only works sometimes and I have no idea why
+	/*return gulp.src('dist/tmp')
+		.pipe(clean());*/
 })
 
-gulp.task('build', ['zip', 'clean']);
+gulp.task('build', ['clean']);
 
 gulp.task('default', ['build']);
 

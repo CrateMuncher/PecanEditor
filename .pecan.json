@@ -1,0 +1,6 @@
+{
+	"fuzzyFinderIgnore": [
+		"**/node_modules/**",
+		"**/lib/**"
+	]
+}
